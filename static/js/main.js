@@ -18,7 +18,10 @@ $(document).ready(function() {
     if (!window.console.log) window.console.log = function() {};
 
     var $mbox = $("#mbox"),
-        $msg = $("input[name=msg]");
+        $msg = $("input[name=msg]"),
+        $mode = $("input[name=mode]"),
+        $start = $("button[name=connect]"),
+        $stop = $("button[name=disconnect]");
 
     $mbox.on("click", function() {
         var data = $(this).formToDict();
@@ -32,6 +35,34 @@ $(document).ready(function() {
             return false;
         }
     });
+
+    $mode.change(function() {
+        if($(this).val()=='ws' && !window.WebSocket){
+            console.error("Your browser don't support WebSocket, please use LongPolling mode");
+        }else if($(this).val()=='lp' && !window.LongPolling){
+            console.error("Your browser don't support LongPolling now");
+        }else{
+            updater.mode = $(this).val();
+            updater.start();
+        } 
+    });
+
+    $start.on('click', function(){
+        updater.start();
+    });
+    $stop.on('click', function(){
+        updater.stop();
+    });
+
+    if(window.WebSocket) {
+        $mode.first().attr('checked', true);
+        updater.mode = 'ws';
+    }else if(window.LongPolling){
+        $mode.last().attr('checked', true);
+        updater.mode = 'lp';
+    }else{
+        console.debug("Your broswer don't support WebSocket and LongPolling");
+    }
 
     $msg.select();
     updater.start();
@@ -53,7 +84,6 @@ jQuery.fn.formToDict = function() {
     return json;
 };
 
-var session = null;
 
 /*
 var Session = function(url) {
@@ -139,23 +169,52 @@ var WSSession = function(url){
 };
 
 // Long Polling Session
-var LPSession = function(){};
+var LPSession = function(){
+    window.LongPolling = null;
+};
+
 
 var updater = {
     $msg: $("#message"),
-    $form: $("input[name=msg]").first(),
+    $field: $("input[name=msg]").first(),
     session: null,
+    Session: null,
+    mode: null,
+    url: null,
+
+    init: function(){
+        updater.stop();
+        if (updater.mode == 'ws'){
+            updater.Session = WSSession;
+            updater.url = "ws://" + location.host + "/ws";
+            console.debug('WebSocket mode');
+        }else if(updater.mode == 'lp'){
+            updater.Session = LPSession;
+            updater.url = "http://" + location.host + "/lp";
+            console.debug('LongPolling mode');
+        }else{
+            console.error('unknow mode');
+        }
+    },
 
     start: function() {
-        var url = "ws://" + location.host + "/websocket";
-    	updater.session = new WSSession(url);
-        updater.session.connect();
+        updater.init();
+        if(updater.mode && updater.Session){
+            updater.session = new updater.Session(updater.url);
+            updater.session.connect();
+        }
+    },
+
+    stop: function() {
+        if(updater.session && updater.session.getstatus != state.CLOSED && updater.session.disconnect){
+            updater.session.disconnect();
+        }
     },
 
     sendMessage: function(data) {
-        if (data.msg) {
+        if (data.msg && updater.mode) {
             updater.session.send(JSON.stringify(data));
-            updater.$form.val("").select();
+            updater.$field.val("").select();
         }
     },
 

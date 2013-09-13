@@ -36,7 +36,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
-            (r"/websocket", WebSocketHandler),
+            (r"/ws", WebSocketHandler),
         ]
         settings = dict(
             debug=True, 

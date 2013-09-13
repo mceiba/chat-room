@@ -24,22 +24,26 @@
         <!-- Add your site or application content here -->
         <h2 style="margin: 0.4em 0;">Chat room</h2>
         <div>
-            <form name="handler" accept-charset="utf-8">
+            <form name="handler" accept-charset="utf-8" style="margin-bottom: 5px">
                 <label><input type="radio" name="mode" value="ws">WebSocket</label>
-                <label><input type="radio" name="mode" value="polling">Long Polling</label>
+                <label><input type="radio" name="mode" value="lp">Long Polling</label>
+                <button type="button" name="connect" class="connect">connect</button>
+                <button type="button" name="disconnect" class="disconnect">disconnect</button>
             </form>   
         </div>
         <div id="tips"></div>
         <form id="mbox" action="index_submit" method="get" accept-charset="utf-8">
             <input type="text" name="msg" style="width:300px; height:30px">
-            <button type="button" class="post">post</button>
+            <button type="botton" name="post" class="post">post</button>
         </form>
         <div id="message"></div>
 
+        <!--
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="static/js/vendor/jquery-2.0.3.min"><\/script>')</script>
+        -->
+        <script>window.jQuery || document.write('<script src="static/js/vendor/jquery-2.0.3.min.js"><\/script>')</script>
         <script src="static/js/plugins.js"></script>
-        <script src="static/js/main.js?v=1.0"></script>
+        <script src="static/js/main.js?v=1.1"></script>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <!--
